@@ -57,7 +57,7 @@
                                 <td>{{ $genre->slug }}</td>
                                 <td>{{ $genre->id }}</td>
                                 <td>
-                                    @if ($genre->hidden)
+                                    @if ($genre->hidden == 1)
                                         <span class="label label-danger">Ẩn</span>
                                     @else
                                         <span class="label label-success">Hiện</span>
@@ -67,7 +67,7 @@
                                 <td>{{ $genre->movies_count }}</td>
 
                                 <td>
-                                    @if ($genre->is_main)
+                                    @if ($genre->is_main == 0)
                                         <span class="label label-danger">Không</span>
                                     @else
                                         <span class="label label-success">Là Menu</span>
