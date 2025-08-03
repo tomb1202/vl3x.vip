@@ -53,12 +53,12 @@ class AppServiceProvider extends ServiceProvider
                 $bannerTopScript = Adv::where(['status' => 1])->where('type', 'LIKE', '%banner-script%')->where('position', 'LIKE', '%top%')->orderBy('sort', 'desc')->get();
                 $bannerCenterScript = Adv::where(['status' => 1])->where('type', 'LIKE', '%banner-script%')->where('position', 'LIKE', '%center%')->orderBy('sort', 'desc')->get();
 
-                $genres = Genre::where('hidden', 0)
+                $genres = Genre::where(['hidden' => 0, 'is_main' => 1])
                     ->where('slug', '!=', '')
                     ->whereHas('movies', function ($q) {
                         $q->where('hidden', 0);
                     })
-                    ->orderBy('name', 'asc')
+                    ->orderBy('sort', 'asc')
                     ->get();
 
                 $topSearches = SearchKeyword::orderByDesc('count')
@@ -87,8 +87,6 @@ class AppServiceProvider extends ServiceProvider
 
             }
         } catch (Exception $e) {
-
-            dd($e);
             Log::error('Errr', ['err' => $e]);
         }
     }

@@ -41,6 +41,7 @@ class GenreController extends Controller
             'slug'        => 'nullable|string|max:255|unique:genres,slug',
             'sort'        => 'nullable|integer|min:0',
             'hidden'      => 'nullable|in:0,1',
+            'is_main'     => 'nullable|in:0,1',
             'meta_title'  => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
         ]);
@@ -50,6 +51,7 @@ class GenreController extends Controller
         $genre->slug = $request->slug ?: Str::slug($request->name);
         $genre->sort = $request->sort ?? 0;
         $genre->hidden = $request->hidden ?? 0;
+        $genre->is_main = $request->is_main ?? 0;
         $genre->meta_title = $request->meta_title;
         $genre->meta_description = $request->meta_description;
         $genre->save();
@@ -75,6 +77,7 @@ class GenreController extends Controller
             'slug'        => 'nullable|string|max:255|unique:genres,slug,' . $genre->id,
             'sort'        => 'nullable|integer|min:0',
             'hidden'      => 'nullable|in:0,1',
+            'is_main'     => 'nullable|in:0,1',
             'meta_title'  => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
         ]);
@@ -83,6 +86,7 @@ class GenreController extends Controller
         $genre->slug = $request->slug ?: Str::slug($request->name);
         $genre->sort = $request->sort ?? 0;
         $genre->hidden = $request->hidden ?? 0;
+        $genre->is_main = $request->is_main ?? 0;
         $genre->meta_title = $request->meta_title;
         $genre->meta_description = $request->meta_description;
         $genre->save();

@@ -60,7 +60,7 @@ class MovieController extends Controller
 
         $data = $query->with(['genres'])->orderByDesc('id')->paginate(30);
 
-        $genres = Genre::where(['hidden' => 0])->get();
+        $genres = Genre::where(['hidden' => 0, 'is_main' => 1])->get();
 
         return view('admin.movies.index', [
             'data' => $data,

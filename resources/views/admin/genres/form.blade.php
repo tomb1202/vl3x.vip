@@ -26,7 +26,7 @@
 
                     <div class="row">
                         {{-- Tên chuyên mục --}}
-                        <div class="col-sm-3">
+                        <div class="col-sm-6">
                             <div class="form-group">
                                 <label>Tên chuyên mục <span class="text-danger">*</span></label>
                                 <input type="text" name="name" class="form-control" required
@@ -35,15 +35,17 @@
                         </div>
 
                         {{-- Slug --}}
-                        <div class="col-sm-3">
+                        <div class="col-sm-6">
                             <div class="form-group">
                                 <label>Slug</label>
                                 <input type="text" name="slug" class="form-control"
                                     value="{{ old('slug', $genre->slug ?? '') }}" placeholder="Tự động tạo nếu để trống">
                             </div>
                         </div>
+                    </div>
 
-                         <div class="col-sm-3">
+                    <div class="row">
+                        <div class="col-sm-3">
                             <div class="form-group">
                                 <label>Sắp xếp</label>
                                 <input type="number" name="sort" class="form-control"
@@ -63,6 +65,20 @@
                                 </select>
                             </div>
                         </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Là menu</label>
+                                <select name="is_main" class="form-control select2">
+                                    <option value="0" {{ old('is_main', $genre->is_main ?? 0) == 0 ? 'selected' : '' }}>
+                                        Không</option>
+                                    <option value="1" {{ old('is_main', $genre->is_main ?? 0) == 1 ? 'selected' : '' }}>
+                                        Là menu</option>
+                                </select>
+                            </div>
+                        </div>
+
+
                     </div>
                     {{-- Meta title --}}
                     <div class="form-group">

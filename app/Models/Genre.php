@@ -9,16 +9,15 @@ class Genre extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
         'name',
         'slug',
         'sort',
         'hidden',
         'meta_title',
-        'meta_description'
+        'meta_description',
+        'is_main',
     ];
-
 
     public function movies()
     {
