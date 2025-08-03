@@ -32,8 +32,8 @@
         }
 
         tbody tr td {
-    vertical-align: middle !important;
-}
+            vertical-align: middle !important;
+        }
     </style>
 @endsection
 
@@ -150,7 +150,24 @@
 
                                 </td>
 
-                                <td>{{ $movie->genres->pluck('name')->implode(', ') }}</td>
+                                <td>
+                                    @php
+                                        $genres = $movie->genres;
+                                        $displayGenres = $genres->take(3);
+                                    @endphp
+
+                                    @foreach ($displayGenres as $index => $genre)
+                                        <a href="{{ route('site.genre', $genre->slug) }}">{{ $genre->name }}</a>
+                                        @if ($index < $displayGenres->count() - 1)
+                                            ,
+                                        @endif
+                                    @endforeach
+
+                                    @if ($genres->count() > 3)
+                                        ...
+                                    @endif
+                                </td>
+
 
 
                                 <td>
