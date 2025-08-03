@@ -109,7 +109,7 @@
                                 <td><input type="checkbox" class="select-item" value="{{ $movie->id }}"></td>
                                 <td>{{ $data->firstItem() + $index }}</td>
 
-                                <td>
+                                <td style="width:100px">
                                     <div class="poster-wrapper text-center position-relative"
                                         style="display: inline-block;">
                                         <!-- Input file hidden -->
@@ -122,7 +122,7 @@
                                             <img src="{{ $movie->poster ? asset('storage/images/posters/' . $movie->poster) : 'https://via.placeholder.com/40x60?text=No+Img' }}"
                                                 class="poster-img-{{ $movie->id }}"
                                                 style="width: 40px; height: 60px; object-fit: cover; display:block;">
-                                            <span class="change-text">Đổi ảnh</span>
+                                            <span class="change-text">Đổi</span>
                                         </a>
                                     </div>
                                     <p>
