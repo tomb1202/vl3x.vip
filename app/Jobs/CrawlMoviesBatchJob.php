@@ -63,6 +63,7 @@ class CrawlMoviesBatchJob implements ShouldQueue
                         'is_crawl' => false,
                         'created_at_api' => $datetime,
                         'updated_at_api' => $datetime,
+                        'hidden' => 1
                     ]
                 );
 

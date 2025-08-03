@@ -53,7 +53,13 @@ class AppServiceProvider extends ServiceProvider
                 $bannerTopScript = Adv::where(['status' => 1])->where('type', 'LIKE', '%banner-script%')->where('position', 'LIKE', '%top%')->orderBy('sort', 'desc')->get();
                 $bannerCenterScript = Adv::where(['status' => 1])->where('type', 'LIKE', '%banner-script%')->where('position', 'LIKE', '%center%')->orderBy('sort', 'desc')->get();
 
-                $genres = Genre::where('hidden', 0)->where('slug', '!=', '')->orderBy('name', 'asc')->get();
+                $genres = Genre::where('hidden', 0)
+                    ->where('slug', '!=', '')
+                    ->whereHas('movies', function ($q) {
+                        $q->where('hidden', 0);
+                    })
+                    ->orderBy('name', 'asc')
+                    ->get();
 
                 $topSearches = SearchKeyword::orderByDesc('count')
                     ->limit(50)

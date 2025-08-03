@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CrawlMovieDetailJob implements ShouldQueue
 {
@@ -69,7 +70,7 @@ class CrawlMovieDetailJob implements ShouldQueue
         foreach ($data['category'] ?? [] as $genre) {
             $g = Genre::firstOrCreate(
                 ['slug' => $genre['slug']],
-                ['name' => $genre['name']]
+                ['name' => $genre['name'], 'hidden' => 1]
             );
             $genreIds[] = $g->id;
         }
@@ -113,9 +114,18 @@ class CrawlMovieDetailJob implements ShouldQueue
         /** =======================
          *   Lưu Sources (Nguồn video)
          *  ======================= */
+        $episodes = $res->json('episodes') ?? [];
+
+        // Nếu không có server => Xoá phim và các liên kết
+        if (empty($episodes)) {
+            $this->deleteMovieWithRelations($movie, "Không có server.");
+            return;
+        }
+
+        // Xoá source cũ trước khi lưu mới
         MovieSource::where('movie_id', $movie->id)->delete();
 
-        foreach ($res->json('episodes') ?? [] as $server) {
+        foreach ($episodes as $server) {
             foreach ($server['server_data'] ?? [] as $ep) {
                 // Lưu m3u8
                 if (!empty($ep['link_m3u8'])) {
@@ -142,5 +152,31 @@ class CrawlMovieDetailJob implements ShouldQueue
                 }
             }
         }
+
+        // Nếu sau khi lưu vẫn không có nguồn video => Xoá phim và liên kết
+        if ($movie->sources()->count() === 0) {
+            $this->deleteMovieWithRelations($movie, "Không có nguồn video.");
+            return;
+        }
+    }
+
+    /**
+     * Xoá movie kèm các quan hệ liên quan
+     */
+    private function deleteMovieWithRelations(Movie $movie, string $reason): void
+    {
+        Log::warning("Xoá phim [{$movie->title}] do {$reason}");
+
+        // Xoá các quan hệ Many-to-Many
+        $movie->genres()->detach();
+        $movie->countries()->detach();
+        $movie->actors()->detach();
+        $movie->directors()->detach();
+
+        // Xoá sources
+        MovieSource::where('movie_id', $movie->id)->delete();
+
+        // Xoá movie
+        $movie->delete();
     }
 }
