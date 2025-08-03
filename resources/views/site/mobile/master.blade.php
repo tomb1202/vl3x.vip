@@ -305,8 +305,6 @@
 
                 <div class="search-history">
                     <h2 id="page-title" class="breadcrumb">Top tìm kiếm</h2>
-
-                    <a href="/search/khong-che/" title="Khong Che">Khong Che</a>
                     @foreach ($topSearches as $search)
                         <a href="{{ route('site.search', ['keyword' => Str::slug($search->keyword)]) }}"
                             title="{{ $search->keyword }}">

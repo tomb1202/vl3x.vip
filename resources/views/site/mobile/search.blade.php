@@ -52,7 +52,7 @@
                         data-original="{{ asset('storage/images/posters/' . $movie->poster) }}" width="240px"
                         height="180px" alt="{{ $movie->title }}">
 
-                    <div class="ribbon">Vietsub</div>
+                    {{-- <div class="ribbon">Vietsub</div> --}}
                 </a>
                 <div class="video-name">
                     <a title="{{ $movie->title }}" href="{{ route('movie.watch', $movie->slug) }}">

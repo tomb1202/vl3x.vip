@@ -48,7 +48,7 @@
                         height="180px" alt="{{ $movie->title }}">
 
                     @if ($movie->is_vietsub ?? false)
-                        <div class="ribbon">Vietsub</div>
+                        {{-- <div class="ribbon">Vietsub</div> --}}
                     @elseif ($movie->is_uncen ?? false)
                         <div class="ribbon">Uncen</div>
                     @endif
