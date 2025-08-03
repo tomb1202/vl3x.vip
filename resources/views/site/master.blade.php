@@ -245,7 +245,7 @@
                     @endforeach
                 </ul>
             </div>
-            <div id="vl-header-adx" style="max-width: 728px; margin: 5px auto; padding: 0 5px; text-align: center;">
+            <div id="vl-header-adx">
 
             </div>
 

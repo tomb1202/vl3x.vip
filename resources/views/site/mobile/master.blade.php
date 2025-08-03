@@ -29,7 +29,7 @@
     <div id="wrapper">
         <div id="header">
             <header>
-                <h1 class="hidden">VLXX.COM</h1>
+                <h1 class="hidden">{{$settings['site_name']}}</h1>
                 <div id="logo">
                     <div itemscope="" itemtype="https://schema.org/Organization" class="logoWrapper"><a itemprop="url"
                             href="/">
@@ -89,7 +89,7 @@
                     <input type="submit" value="Tìm kiếm" class="searchBtn">
                 </form>
             </div>
-            <div id="vl-header-adx" style="max-width: 728px; margin: 5px auto; padding: 0 5px; text-align: center;">
+            <div id="vl-header-adx">
 
             </div>
         </div>
