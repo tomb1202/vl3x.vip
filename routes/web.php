@@ -13,6 +13,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\MovieController as SysMovieController;
+use Illuminate\Support\Facades\Cache;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +138,28 @@ Route::middleware(['admin'])
 Route::post('movies/change-poster', [SysMovieController::class, 'changePoster'])
     ->name('admin.movies.change-poster');
 
+
+Route::get('/storage/uploads/advs/{path?}', function ($path) {
+    $cacheKey = 'adv_' . $path;
+
+    if (Cache::store('file')->has($cacheKey)) {
+        $imageString = Cache::store('file')->get($cacheKey);
+    } else {
+        $imagePath = storage_path('app/public/uploads/advs/' . $path);
+
+        if (!file_exists($imagePath)) {
+            $imagePath = public_path('system/img/no-image.png');
+        }
+
+        $imageString = file_get_contents($imagePath);
+
+        Cache::store('file')->put($cacheKey, $imageString, now()->addMinutes(60));
+    }
+
+    $response = response($imageString)->header('Content-Type', 'image/gif');
+    $response->header('Cache-Control', 'public, max-age=31536000');
+    return $response;
+})->name('web.adv.banner');
 
 Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
 Route::post('/login',  [AdminController::class, 'postLogin'])->name('admin.post.login');
