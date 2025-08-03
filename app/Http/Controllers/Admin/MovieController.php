@@ -36,7 +36,13 @@ class MovieController extends Controller
             });
         }
 
-        if ($request->has('hidden') && !empty($request->hidden)) {
+        if ($request->has('genre_id') && !empty($request->genre_id)) {
+            $query->whereHas('genres', function ($q) use ($request) {
+                $q->where('genre_id', $request->genre_id);
+            });
+        }
+
+        if ($request->has('hidden') && $request->hidden !== '') {
             $query->where('hidden', (int)$request->hidden);
         }
 
@@ -54,12 +60,16 @@ class MovieController extends Controller
 
         $data = $query->with(['genres'])->orderByDesc('id')->paginate(30);
 
+        $genres = Genre::where(['hidden' => 0])->get();
+
         return view('admin.movies.index', [
             'data' => $data,
             'request' => $request,
             'countries' => $countries,
+            'genres' => $genres
         ]);
     }
+
 
     public function destroy(Request $request)
     {
@@ -187,7 +197,7 @@ class MovieController extends Controller
 
         $movie->update([
             'poster' => $posterName,
-            'thumbnail' => null 
+            'thumbnail' => null
         ]);
 
         return response()->json([

@@ -47,11 +47,9 @@
                         data-original="{{ asset('storage/images/posters/' . $movie->poster) }}" width="240px"
                         height="180px" alt="{{ $movie->title }}">
 
-                    @if ($movie->is_vietsub ?? false)
-                        {{-- <div class="ribbon">Vietsub</div> --}}
-                    @elseif ($movie->is_uncen ?? false)
-                        <div class="ribbon">Uncen</div>
-                    @endif
+                    @if($movie->language == 'Vietsub')
+                        <div class="ribbon">{{$movie->language == 'Vietsub' ? 'Vietsub' : ""}}</div>
+                        @endif
                 </a>
                 <div class="video-name">
                     <a title="{{ $movie->title }}" href="{{ route('movie.watch', $movie->slug) }}">

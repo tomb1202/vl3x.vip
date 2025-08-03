@@ -62,7 +62,20 @@
                 <div class="search">
                     <form action="" method="GET">
                         <div class="row">
-                            <div class="col-sm-5"></div>
+                            <div class="col-sm-3">
+
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="form-group clearfix">
+                                    <select name="genre_id" class="form-control">
+                                        <option value="">-- Thể loại</option>
+                                        @foreach ($genres as $genre)
+                                            <option value="{{ $genre->id }}" {{$request->genre_id == $genre->id ? 'selected' : ''}}>{{ $genre->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="col-sm-2">
                                 <div class="form-group clearfix">
                                     <select name="hidden" class="form-control">
