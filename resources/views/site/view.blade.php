@@ -63,14 +63,14 @@
                 <div class="video-description">{!! $movie->description !!}</div>
 
                 <div class="video-tags">
-                    @if ($movie->actors->count())
+                    {{-- @if ($movie->actors->count())
                         <div class="actress-tag">
                             @foreach ($movie->actors as $actor)
                                 <a href="{{ route('site.actor', $actor->slug) }}"
                                     title="{{ $actor->name }}">{{ $actor->name }}</a>
                             @endforeach
                         </div>
-                    @endif
+                    @endif --}}
 
                     @if ($movie->genres->count())
                         <div class="category-tag">
