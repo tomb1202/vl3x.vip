@@ -23,6 +23,199 @@
             font-family: math;
         }
     </style>
+
+     @if ($isDesktop)
+        <link type="text/css" href="{{ url('assets/css/desktop-default.css') }}" rel="stylesheet">
+    @else
+        <link type="text/css" href="{{ url('assets/css/desktop-default.css') }}" rel="stylesheet">
+    @endif
+
+    <script type="text/javascript" src="{{ url('assets/js/jquery.min.js') }}"></script>
+
+    @if ($isDesktop)
+        <script type="text/javascript" src="{{ url('assets/js/desktop-default.js') }}"></script>
+    @else
+        <script type="text/javascript" src="{{ url('assets/js/mobile-default.js') }}"></script>
+    @endif
+
+    <script type="text/javascript" src="{{ url('assets/js/jquery.lazyload.min.js') }}"></script>
+    <script>
+        $(function() {
+            $("img.lazyload").lazyload();
+        })
+    </script>
+
+    <style>
+        body {
+            font-family: math;
+        }
+    </style>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {!! $settings['google_console'] ?? null !!}
+    {!! $settings['google_analytics'] ?? null !!}
+
+    @if ($isDesktop)
+        <link href="{{ url('assets/adv/desktop-adx.css') }}" rel="stylesheet" type="text/css">
+    @else
+        <link href="{{ url('assets/adv/mobile-adx.css') }}" rel="stylesheet" type="text/css">
+    @endif
+
+    @if (isset($headerScript))
+        @foreach ($headerScript as $header)
+            {!! $header->script !!}
+        @endforeach
+    @endif
+
+    <style>
+        .banner-row {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .banner-side {
+            width: 160px;
+            flex-shrink: 0;
+        }
+
+        .banner-side img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .adv-center {
+            flex: 1;
+            max-width: 100%;
+        }
+
+        .main-content {
+            margin-top: 20px;
+        }
+
+
+        .banner-row {
+            width: 70%;
+            margin: 0 auto;
+        }
+
+        .fixed-banner {
+            position: fixed;
+            top: 130px;
+            z-index: 999;
+            width: 120px;
+        }
+
+        .fixed-left {
+            left: 8%;
+        }
+
+        .fixed-right {
+            right: 8%;
+        }
+
+        .fixed-banner img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .banner-side img {
+            margin-bottom: 5px;
+        }
+
+
+        #vl-header-adx {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #vl-header-adx p {
+            width: 50%;
+            /* mỗi hàng 2 ảnh */
+            box-sizing: border-box;
+        }
+
+        @media screen and (max-width:1200px) {
+            .banner-row {
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .banner-row {
+
+                margin-top: 0px;
+            }
+
+            .main-content {
+                margin-top: 0px;
+            }
+
+            div#vl-header-adx {
+                padding: 15px;
+            }
+
+            div#vl-header-adx p {
+                margin-bottom: 0;
+            }
+
+        }
+
+
+        .banner-catfish-bottom img {
+            width: 100%;
+        }
+
+        .banner-catfish-bottom a {
+            /* width: 80%; */
+        }
+
+        .banner-catfish-bottom:nth-child(odd) img {
+            width: 80%;
+            display: block;
+            margin-left: auto;
+        }
+
+        .banner-catfish-bottom:nth-child(even) img {
+            width: 80%;
+            display: block;
+            margin-right: auto;
+        }
+
+
+        .banner-catfish-bottom {
+            box-shadow: none;
+        }
+
+
+        .banner-preload-container>a {
+            max-width: 560px;
+        }
+
+        @media screen and (max-width:720px) {
+            .fixed-banner {
+                display: none;
+            }
+
+            #vl-header-adx p {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            #vl-header-adx {
+                display: inline-flex;
+                flex-wrap: wrap;
+            }
+
+            .catfish-bottom {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -141,10 +334,40 @@
 
     </div>
 
-
-    <a onclick="oc()" id="bb0"
-        href="https://vu88.com/khuyen-mai/the-loai/thuong-nap/?a=d4b23fc5e3051429c8baa64a9038a523&amp;utm_source=vlxxmoe&amp;utm_medium=popunder1&amp;utm_campaign=cpd&amp;utm_term=sex"
-        style="opacity:0; width:1px; height: 1px;" target="_blank" rel="nofollow" data-wpel-link="external">X</a>
 </body>
+
+{{-- adx js --}}
+<script type="text/javascript" src="{{ url('assets/adv/vl-header-adx.js?v=' . time()) }}"></script>
+
+@if ($isDesktop)
+    <script type="text/javascript" src="{{ url('assets/adv/vl-desktop-adx.js?v=' . time()) }}"></script>
+@else
+    <script type="text/javascript" src="{{ url('assets/adv/vl-mobile-adx.js?v=' . time()) }}"></script>
+@endif
+
+@if (Route::currentRouteName() == 'web.movie.view')
+    <script type="text/javascript" src="{{ url('assets/adv/vl-underplayer-adx.js?v=' . time()) }}"></script>
+@endif
+
+{{-- push js --}}
+@if (isset($pushJs))
+    @foreach ($pushJs as $push)
+        {!! $push->script !!} <br>
+    @endforeach
+@endif
+
+{{-- popup js --}}
+@if (isset($popupJs))
+    @foreach ($popupJs as $popup)
+        {!! $popup->script !!} <br>
+    @endforeach
+@endif
+
+{{-- bottom script --}}
+@if (isset($bottomScript))
+    @foreach ($bottomScript as $bottom)
+        {!! $bottom->script !!} <br>
+    @endforeach
+@endif
 
 </html>
