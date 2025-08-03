@@ -45,6 +45,7 @@
                             <th>Ẩn</th>
                             <th>Cập nhật</th>
                             <th>Phim</th>
+                            <th>Là menu</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -64,6 +65,14 @@
                                 </td>
                                 <td>{{ $genre->updated_at ? $genre->updated_at->format('d/m/Y H:i') : '---' }}</td>
                                 <td>{{ $genre->movies_count }}</td>
+
+                                <td>
+                                    @if ($genre->is_main)
+                                        <span class="label label-danger">Không</span>
+                                    @else
+                                        <span class="label label-success">Là Menu</span>
+                                    @endif
+                                </td>
 
                                 <td>
                                     <a href="{{ route('admin.genres.edit', $genre->id) }}"
