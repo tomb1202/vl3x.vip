@@ -78,11 +78,6 @@ class CrawlMoviesBatchJob implements ShouldQueue
                     if ($posterFilename) $movie->poster = $posterFilename;
                 }
 
-                if (!empty($thumbUrl)) {
-                    $thumbFilename = downloadImage($thumbUrl, $slug . '-thumb.webp', true);
-                    if ($thumbFilename) $movie->thumbnail = $thumbFilename;
-                }
-
                 $movie->save();
 
                 // Dispatch job crawl chi tiết
