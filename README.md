@@ -1,66 +1,184 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Project – MeSex.Tv
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Dự án Laravel này sử dụng Laravel Framework phiên bản 10.x và PHP >= 8.1. Đây là một ứng dụng web với nhiều chức năng xử lý dữ liệu nền (queue), crawl dữ liệu từ web, resize ảnh, API authentication và giao diện quản lý log.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Yêu cầu hệ thống
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP >= 8.1
+- Composer
+- MySQL
+- Node.js (Sử dụng queue nền qua PM2)
+- Các PHP extensions bắt buộc:
+  - `fileinfo`
+  - `mbstring`
+  - `pcntl`
+  - `pdo`
+  - `pdo_mysql` (hoặc `pdo_pgsql`)
+  - `gd`
+- Set quyền ghi cho các thư mục:
+  - `storage/`
+  - `bootstrap/cache`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Cài đặt
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+# Clone source code
+git clone <repository_url> project-name
+cd project-name
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# Cài composer packages
+composer install
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Tạo file .env từ file mẫu
+cp .env.example .env
 
-## Laravel Sponsors
+# Cấu hình các thông số trong .env:
+# - DB_DATABASE, DB_USERNAME, DB_PASSWORD
+# - APP_URL
+# - QUEUE_CONNECTION=database
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Generate APP_KEY
+php artisan key:generate
 
-### Premium Partners
+# Tạo symbolic link cho thư mục storage (phục vụ ảnh, file upload)
+php artisan storage:link
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# Cấp quyền ghi cho storage và bootstrap/cache
+chmod -R 777 storage
+chmod -R 777 bootstrap/cache
 
-## Contributing
+# Chạy migrate database
+php artisan migrate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## CI/CD – Các bước cần chạy khi deploy
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# 1. Pull code mới nhất từ nhánh chính
+git pull origin main
 
-## Security Vulnerabilities
+# 2. Cài đặt composer (không cài dev dependencies)
+composer install --no-dev --optimize-autoloader
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 3. Dọn sạch cache cũ
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
 
-## License
+# 4. Chạy migrate database
+php artisan migrate --force
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 5. Cache lại toàn bộ config và routes
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 6. Cấp quyền lại cho storage và bootstrap/cache
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+
+# 7. Restart queue và workers
+php artisan queue:restart
+pm2 restart all
+```
+
+---
+
+## Cronjob Laravel Scheduler
+
+Thêm dòng sau vào crontab để kích hoạt scheduler Laravel:
+
+```bash
+* * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Lưu ý:
+- `/path/to/project` là đường dẫn tuyệt đối đến thư mục Laravel
+- Laravel sẽ tự kiểm tra thời điểm chạy các lệnh định kỳ trong `app/Console/Kernel.php`
+
+---
+
+## ⚡ Cấu hình queue với PM2
+
+Laravel sử dụng `pm2` để chạy queue nền:
+
+```bash
+pm2 start /path/to/project/queue_worker.yml
+```
+
+- `/path/to/project` là thư mục chứa code Laravel
+- File `queue_worker.yml` chứa định nghĩa các queue: `default`, v.v...
+
+---
+
+## Cấu hình upload lớn trong Nginx & PHP-FPM
+
+### 1. Cập nhật Nginx
+
+**Nếu dùng block `server` hoặc `http`:**
+
+```nginx
+client_max_body_size 100M;
+```
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+---
+
+### 2. Cập nhật PHP-FPM (PHP 8.3)
+
+```bash
+sudo nano /etc/php/8.3/fpm/php.ini
+```
+
+Chỉnh các thông số:
+
+```ini
+upload_max_filesize = 100M
+post_max_size = 100M
+max_execution_time = 300
+max_input_time = 300
+```
+
+Khởi động lại PHP-FPM:
+
+```bash
+sudo systemctl restart php8.3-fpm
+```
+
+---
+
+## Các package chính sử dụng
+
+- `fabpot/goutte` – HTML crawler
+- `guzzlehttp/guzzle` – HTTP client
+- `intervention/image` – Xử lý ảnh
+- `laravel/sanctum` – API authentication
+- `laravel/ui` – Giao diện đăng nhập Bootstrap
+- `opcodesio/log-viewer` – Giao diện xem log Laravel
+- `barryvdh/laravel-debugbar` – Debug SQL, request, view
+- `jenssegers/agent` – Phân loại thiết bị người dùng
+
+---
+
+## Ghi chú
+
+- Nhánh chính của project: `main`
+- Đảm bảo:
+  - Đã chạy `php artisan queue:restart` sau khi deploy
+  - Đã cập nhật `nginx.conf` và `php.ini` nếu upload file lớn
+  - Đừng quên:
+    - `php artisan queue:restart` sau khi deploy
+    - `pm2 start /path/to/project/queue_worker.yml` sau khi boot server hoặc thay đổi file cấu hình queue
+    - `pm2 save` để tự động start pm2 khi restart server
+- Đảm bảo cronjob `schedule:run` được cấu hình vì có sử dụng Laravel scheduler
