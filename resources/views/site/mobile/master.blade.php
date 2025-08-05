@@ -27,7 +27,7 @@
      @if ($isDesktop)
         <link type="text/css" href="{{ url('assets/css/desktop-default.css') }}" rel="stylesheet">
     @else
-        <link type="text/css" href="{{ url('assets/css/desktop-default.css') }}" rel="stylesheet">
+        <link type="text/css" href="{{ url('assets/css/mobile-default.css') }}" rel="stylesheet">
     @endif
 
     <script type="text/javascript" src="{{ url('assets/js/jquery.min.js') }}"></script>
