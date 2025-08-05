@@ -73,18 +73,6 @@
         }else{
             f2 = 0
         }
-        if(!f2){
-            $.post(ajaxurl, {
-        		history: f
-        	}, function(data) {
-        		try{
-        		  var jsons = JSON.parse(data);
-            		if(jsons.success)
-                        localStorage['f:'+f] = Math.round(new Date().getTime()/1000)
-        		}catch(e){}
-        	});
-            
-        }
     }
 
 	var _x = document.location.protocol + '//' + document.location.hostname

@@ -9,12 +9,6 @@
 		var id = $('button.download').attr('data-id');
 		if(id){
 			$('#download').html('<p>Loading...</p>');
-			$.post(ajaxurl,{
-				vlxx_download: 2,
-				id: id
-			}, function(data) {
-				$('#download').html(data);
-			});
 		}
 	});
 	
@@ -22,12 +16,6 @@
 		var id = $('.download-button a').attr('data-id');
 		if(id){
 			$('#download').html('<p>Loading...</p>');
-			$.post(ajaxurl,{
-				vlxx_download: 2,
-				id: id
-			}, function(data) {
-				$('#download').html(data);
-			});
 		}
 	});
 	
@@ -69,15 +57,6 @@
             f2 = 0
         }
         if(!f2){
-            $.post(ajaxurl, {
-        		history: f
-        	}, function(data) {
-        		try{
-        		  var jsons = JSON.parse(data);
-            		if(jsons.success)
-                        localStorage['f:'+f] = Math.round(new Date().getTime()/1000)
-        		}catch(e){}
-        	});
             
         }
     }
@@ -110,11 +89,6 @@ function reloadCurrentserver(){
 function del_cache() {
 	var data_id = $('#video').attr('data-id');
 	var server_id = $('#video').attr('data-sv');
-	$.post(ajaxurl, {
-		delcache: 1,
-		server: server_id,
-		videoid: data_id
-	});
 }
 
 var cookie_notice = !1,
