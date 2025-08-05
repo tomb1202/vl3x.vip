@@ -29,7 +29,7 @@
 @section('main')
 
     <div id="container">
-        <h2 id="page-title" class="breadcrumb" style="text-transform: none;">{{$movie->title}}
+        <h2 id="page-title" class="breadcrumb" style="text-transform: none;">{{ $movie->title }}
         </h2>
 
         <div id="video" data-id="2934" data-sv="1">
@@ -83,28 +83,28 @@
                 </div>
             </div>
 
-            <div id="video-list">
-                <h2 class="breadcrumb">Phim liên quan</h2>
-                @foreach ($relatedMovies as $rel)
-                    <div id="video-{{ $rel->id }}" class="video-item">
-                        <a title="{{ $rel->title }}" href="{{ route('movie.watch', ['slug' => $rel->slug]) }}">
-                            <img class="video-image lazyload" src="{{ asset('storage/images/posters/' . $rel->poster) }}"
-                                data-original="{{ asset('storage/images/posters/' . $rel->poster) }}" width="240px"
-                                height="180px" alt="{{ $rel->title }}">
-
-                            @if($movie->language == 'Vietsub')
-                        <div class="ribbon">{{$movie->language == 'Vietsub' ? 'Vietsub' : ""}}</div>
-                        @endif
-                        </a>
-                        <div class="video-name">
-                            <a title="{{ $rel->title }}" href="{{ route('movie.watch', ['slug' => $rel->slug]) }}">
-                                {{ $rel->title }}
-                            </a>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
             <div class="clear"></div>
+        </div>
+
+        <div id="video-list">
+            <h2 class="breadcrumb">Phim liên quan</h2>
+            @foreach ($relatedMovies as $rel)
+                <div id="video-{{ $rel->id }}" class="video-item">
+                    <a title="{{ $rel->title }}" href="{{ route('movie.watch', ['slug' => $rel->slug]) }}">
+                        <img class="video-image lazyload" src="{{ asset('storage/images/posters/' . $rel->poster) }}"
+                            data-original="{{ asset('storage/images/posters/' . $rel->poster) }}" width="240px"
+                            height="180px" alt="{{ $rel->title }}">
+
+                        @if ($movie->language == 'Vietsub')
+                            <div class="ribbon">{{ $movie->language == 'Vietsub' ? 'Vietsub' : '' }}</div>
+                        @endif
+                    </a>
+                    <div class="video-name">
+                        <a title="{{ $rel->title }}" href="{{ route('movie.watch', ['slug' => $rel->slug]) }}">
+                            {{ $rel->title }}
+                        </a>
+                    </div>
+                </div>
+            @endforeach
         </div>
     @endsection
