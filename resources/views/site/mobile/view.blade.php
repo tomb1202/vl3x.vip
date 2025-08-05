@@ -48,21 +48,22 @@
                     <p style="text-align:center; color:#fff; padding:20px;">Hiện chưa có nguồn video khả dụng.</p>
                 @endif
 
-                <div class="clear"></div>
+            </div>
 
-                <div id="vl-underplayer-adx"
-                    style="max-width: 728px; margin: 5px auto; padding: 0 5px; text-align: center;">
+            <div class="clear"></div>
 
-                </div>
+            <div id="vl-underplayer-adx" style="max-width: 728px; margin: 5px auto; padding: 0 5px; text-align: center;">
 
-                <script src="{{ url('/assets/adv/vl-underplayer-adx.js') }}"></script>
+            </div>
 
-                <div class="clear"></div>
-                <div class="video-content">
-                    <div class="video-description">{!! $movie->description !!}</div>
+            <script src="{{ url('/assets/adv/vl-underplayer-adx.js') }}"></script>
 
-                    <div class="video-tags">
-                        {{-- @if ($movie->actors->count())
+            <div class="clear"></div>
+            <div class="video-content">
+                <div class="video-description">{!! $movie->description !!}</div>
+
+                <div class="video-tags">
+                    {{-- @if ($movie->actors->count())
                             <div class="actress-tag">
                                 @foreach ($movie->actors as $actor)
                                     <a href="{{ route('site.actor', $actor->slug) }}"
@@ -71,15 +72,14 @@
                             </div>
                         @endif --}}
 
-                        @if ($movie->genres->count())
-                            <div class="category-tag">
-                                @foreach ($movie->genres as $genre)
-                                    <a href="{{ route('site.genre', $genre->slug) }}"
-                                        title="{{ $genre->name }}">{{ $genre->name }}</a>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
+                    @if ($movie->genres->count())
+                        <div class="category-tag">
+                            @foreach ($movie->genres as $genre)
+                                <a href="{{ route('site.genre', $genre->slug) }}"
+                                    title="{{ $genre->name }}">{{ $genre->name }}</a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
 
