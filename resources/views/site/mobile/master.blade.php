@@ -45,6 +45,10 @@
         })
     </script>
 
+<script type="text/javascript">
+        var ajaxurl = '';
+    </script>
+    
     <style>
         body {
             font-family: math;
