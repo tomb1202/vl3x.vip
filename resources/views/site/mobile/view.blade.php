@@ -29,21 +29,41 @@
 @section('main')
 
     <div id="container">
-        <h2 id="page-title" class="breadcrumb" style="text-transform: none;">{{ $movie->title }}
-        </h2>
+        <h2 id="page-title" class="breadcrumb" style="text-transform: none;">{{ $movie->title }}</h2>
 
-        <div id="video" data-id="2934" data-sv="1">
-            <div class="mobile video-player">
+        <div id="video" data-id="{{ $movie->id }}" data-sv="1">
+            <div class="mobile video-player" style="position: relative; padding-top: 56.25%;">
 
                 @php
-                    $embedSource = $movie->sources->where('active', 1)->where('type', 'embed')->first();
+                    $m3u8Source = $movie->sources->where('active', 1)->where('type', 'm3u8')->first();
                 @endphp
 
-                @if ($embedSource)
-                    <iframe src="{{ $embedSource->video }}" frameborder="0" width="100%" height="100%"
-                        allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
-                        style="position: absolute;top: 0;">
-                    </iframe>
+                @if ($m3u8Source)
+                    {{-- Video player HLS cho m3u8 --}}
+                    <video id="video-player" controls playsinline preload="auto"
+                        style="position: absolute; top:0; left:0; width:100%; height:100%; background:#000;"></video>
+
+                    {{-- Thêm hls.js để hỗ trợ browser không native HLS --}}
+                    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var video = document.getElementById('video-player');
+                            var videoSrc = "{{ $m3u8Source->video }}";
+
+                            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                                // Safari, iOS hỗ trợ native HLS
+                                video.src = videoSrc;
+                            } else if (Hls.isSupported()) {
+                                // Chrome, Firefox, Edge
+                                var hls = new Hls();
+                                hls.loadSource(videoSrc);
+                                hls.attachMedia(video);
+                            } else {
+                                document.querySelector('.mobile.video-player').innerHTML =
+                                    '<p style="color:white;text-align:center;padding:20px;">Trình duyệt của bạn không hỗ trợ phát video này.</p>';
+                            }
+                        });
+                    </script>
                 @else
                     <p style="text-align:center; color:#fff; padding:20px;">Hiện chưa có nguồn video khả dụng.</p>
                 @endif
@@ -53,25 +73,14 @@
             <div class="clear"></div>
 
             <div id="vl-underplayer-adx" style="max-width: 728px; margin: 5px auto; padding: 0 5px; text-align: center;">
-
             </div>
-
             <script src="{{ url('/assets/adv/vl-underplayer-adx.js') }}"></script>
 
             <div class="clear"></div>
-            <div class="video-content" style="    margin-top: 15px;">
+            <div class="video-content" style="margin-top: 15px;">
                 <div class="video-description">{!! $movie->description !!}</div>
 
                 <div class="video-tags">
-                    {{-- @if ($movie->actors->count())
-                            <div class="actress-tag">
-                                @foreach ($movie->actors as $actor)
-                                    <a href="{{ route('site.actor', $actor->slug) }}"
-                                        title="{{ $actor->name }}">{{ $actor->name }}</a>
-                                @endforeach
-                            </div>
-                        @endif --}}
-
                     @if ($movie->genres->count())
                         <div class="category-tag">
                             @foreach ($movie->genres as $genre)
@@ -96,7 +105,7 @@
                             height="180px" alt="{{ $rel->title }}">
 
                         @if ($movie->language == 'Vietsub')
-                            <div class="ribbon">{{ $movie->language == 'Vietsub' ? 'Vietsub' : '' }}</div>
+                            <div class="ribbon">Vietsub</div>
                         @endif
                     </a>
                     <div class="video-name">
@@ -107,4 +116,5 @@
                 </div>
             @endforeach
         </div>
-    @endsection
+    </div>
+@endsection
