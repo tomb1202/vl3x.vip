@@ -188,13 +188,15 @@ class MovieController extends Controller
             Storage::delete('public/images/posters/' . $movie->poster);
         }
 
-        // Tạo tên file mới
-        $extension = $request->file('poster')->getClientOriginalExtension();
-        $posterName = uniqid('poster_') . '.' . $extension;
+        // Tạo tên file mới (luôn là webp)
+        $posterName = uniqid('poster_') . '.webp';
+        $path = storage_path('app/public/images/posters/' . $posterName);
 
-        // Lưu file poster
-        $request->file('poster')->storeAs('public/images/posters', $posterName);
+        // Convert sang WebP và lưu
+        $image = Image::make($request->file('poster'))->encode('webp', 90); 
+        $image->save($path);
 
+        // Cập nhật DB
         $movie->update([
             'poster' => $posterName,
             'thumbnail' => null
