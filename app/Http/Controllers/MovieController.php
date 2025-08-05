@@ -10,7 +10,6 @@ class MovieController extends Controller
 {
     public function watch($slug, $code = null)
     {
-
         $movie = Movie::where('slug', $slug)
             ->with(['genres', 'sources'])
             ->firstOrFail();
@@ -30,17 +29,20 @@ class MovieController extends Controller
                 ->get();
         });
 
-        $agent  = new Agent();
+        $agent = new Agent();
+        $isIOS = $agent->is('iPhone') || $agent->is('iPad');
 
         if ($agent->isDesktop()) {
             return view('site.view', [
                 'movie' => $movie,
                 'relatedMovies' => $relatedMovies,
+                'isIOS' => $isIOS,
             ]);
         } else {
-             return view('site.mobile.view', [
+            return view('site.mobile.view', [
                 'movie' => $movie,
                 'relatedMovies' => $relatedMovies,
+                'isIOS' => $isIOS,
             ]);
         }
     }

@@ -27,23 +27,21 @@
 @endsection
 
 @section('main')
-
     <div id="container">
         <h2 id="page-title" class="breadcrumb" style="text-transform: none;">{{ $movie->title }}</h2>
 
         <div id="video" data-id="{{ $movie->id }}" data-sv="1">
             <div class="mobile video-player" style="position: relative; padding-top: 56.25%;">
-
                 @php
                     $m3u8Source = $movie->sources->where('active', 1)->where('type', 'm3u8')->first();
+                    $embedSource = $movie->sources->where('active', 1)->where('type', 'embed')->first();
                 @endphp
 
-                @if ($m3u8Source)
-                    {{-- Video player HLS cho m3u8 --}}
+                @if ($isIOS && $m3u8Source)
+                    {{-- iOS: Phát HLS m3u8 --}}
                     <video id="video-player" controls playsinline preload="auto"
-                        style="position: absolute; top:0; left:0; width:100%; height:100%; background:#000;"></video>
+                        style="position:absolute;top:0;left:0;width:100%;height:100%;background:#000;"></video>
 
-                    {{-- Thêm hls.js để hỗ trợ browser không native HLS --}}
                     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
                     <script>
                         document.addEventListener("DOMContentLoaded", function() {
@@ -51,23 +49,22 @@
                             var videoSrc = "{{ $m3u8Source->video }}";
 
                             if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                                // Safari, iOS hỗ trợ native HLS
-                                video.src = videoSrc;
+                                video.src = videoSrc; // Safari iOS native
                             } else if (Hls.isSupported()) {
-                                // Chrome, Firefox, Edge
                                 var hls = new Hls();
                                 hls.loadSource(videoSrc);
                                 hls.attachMedia(video);
-                            } else {
-                                document.querySelector('.mobile.video-player').innerHTML =
-                                    '<p style="color:white;text-align:center;padding:20px;">Trình duyệt của bạn không hỗ trợ phát video này.</p>';
                             }
                         });
                     </script>
+                @elseif ($embedSource)
+                    {{-- Non-iOS: Dùng iframe --}}
+                    <iframe src="{{ $embedSource->video }}" frameborder="0" width="100%" height="100%"
+                        allowfullscreen webkitallowfullscreen mozallowfullscreen
+                        style="position:absolute;top:0;left:0;"></iframe>
                 @else
                     <p style="text-align:center; color:#fff; padding:20px;">Hiện chưa có nguồn video khả dụng.</p>
                 @endif
-
             </div>
 
             <div class="clear"></div>
@@ -84,14 +81,12 @@
                     @if ($movie->genres->count())
                         <div class="category-tag">
                             @foreach ($movie->genres as $genre)
-                                <a href="{{ route('site.genre', $genre->slug) }}"
-                                    title="{{ $genre->name }}">{{ $genre->name }}</a>
+                                <a href="{{ route('site.genre', $genre->slug) }}" title="{{ $genre->name }}">{{ $genre->name }}</a>
                             @endforeach
                         </div>
                     @endif
                 </div>
             </div>
-
             <div class="clear"></div>
         </div>
 
@@ -103,7 +98,6 @@
                         <img class="video-image lazyload" src="{{ asset('storage/images/posters/' . $rel->poster) }}"
                             data-original="{{ asset('storage/images/posters/' . $rel->poster) }}" width="240px"
                             height="180px" alt="{{ $rel->title }}">
-
                         @if ($movie->language == 'Vietsub')
                             <div class="ribbon">Vietsub</div>
                         @endif
