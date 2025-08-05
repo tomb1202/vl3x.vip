@@ -3,7 +3,7 @@
 	var data_id = $('#video').attr('data-id');
 	var server_id = $('#video').attr('data-sv');
 	if(data_id){
-		server(server_id,data_id);
+		// server(server_id,data_id);
 	}
 	$("button.download").click(function(){
 		var id = $('button.download').attr('data-id');
@@ -117,51 +117,5 @@ function del_cache() {
 	});
 }
 
-function errorHandler(){
-	var time = 2;
-	var data_id = $('#video').attr('data-id');
-	var server_id = $('#video').attr('data-sv');
-	if (typeof reloadedCount[server_id] == "undefined") {
-		reloadedCount[server_id] = 1;
-	}
-	
-	if(reloadedCount[server_id]<time){
-		setTimeout(function() {
-			reloadCurrentserver();
-		}, 100);
-		reloadedCount[server_id]++;
-	}else {
-		$.post(ajaxurl, {
-			reloadError: 1,
-			server: server_id,
-			videoid: data_id
-		});
-		$('#video .video-player').append("<p style='background:#666; color: #fff; text-align:center; margin-top: 5px; padding: 5px;'>This server is error and automatic reload in " + time + " times."
-		+ "<br />Please choose server <font color='#ea4335'>#2</font> <font color='#ea4335'>#3</font> if available.</p>");
-	}
-}
-
 var cookie_notice = !1,
 	error_thispage = false;
-
-function server(server,id){
-	var id = parseInt(id);
-	var server = parseInt(server);
-	$.post(ajaxurl,{
-		vlxx_server: 2,
-		id: id,
-		server: server
-	}, function(data) {
-		var jsons = JSON.parse(data);
-		$('.mobile').html(jsons.player);
-		$('.download-button').html(jsons.download);
-        $('.video-server').removeClass('bt_active');
-        $('#server'+server).addClass('bt_active');
-		$('#video').attr('data-id',id);
-		$('#video').attr('data-sv',server);
-	});
-	$('html, body').animate({
-		scrollTop: ($('.mobile').offset().top)-50,
-	});
-	return false;
-}
