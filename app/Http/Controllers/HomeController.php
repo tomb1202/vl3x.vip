@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         $movies = Movie::where('hidden', 0)
             ->whereHas('sources')
-            ->orderByDesc('updated_at')
+            ->orderBy('updated_at', 'asc')
             ->paginate(30);
 
         $agent  = new Agent();
