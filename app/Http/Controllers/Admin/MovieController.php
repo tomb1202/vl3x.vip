@@ -193,13 +193,15 @@ class MovieController extends Controller
         $path = storage_path('app/public/images/posters/' . $posterName);
 
         // Convert sang WebP và lưu
-        $image = Image::make($request->file('poster'))->encode('webp', 90); 
+        $image = Image::make($request->file('poster'))->encode('webp', 90);
         $image->save($path);
 
-        // Cập nhật DB
+        // Cập nhật DB, đồng thời reset timestamps về now()
         $movie->update([
             'poster' => $posterName,
-            'thumbnail' => null
+            'thumbnail' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return response()->json([
