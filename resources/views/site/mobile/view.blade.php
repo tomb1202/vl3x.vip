@@ -59,7 +59,7 @@
             <script src="{{ url('/assets/adv/vl-underplayer-adx.js') }}"></script>
 
             <div class="clear"></div>
-            <div class="video-content">
+            <div class="video-content" style="    margin-top: 15px;">
                 <div class="video-description">{!! $movie->description !!}</div>
 
                 <div class="video-tags">

@@ -1,6 +1,6 @@
 @extends('site.mobile.master')
 @section('head')
-    <title>{{ $$genre->name }} - {{ $settings['site_name'] }}</title>
+    <title>{{ $genre->name }} - {{ $settings['site_name'] }}</title>
     <meta name="description" content="{{ $genre->description ?? $settings['description'] }}">
 
     {{-- Canonical --}}
@@ -9,7 +9,7 @@
 
     {{-- Open Graph --}}
     <meta property="og:locale" content="vi_VN">
-    <meta property="og:title" content="{{ $$genre->name }} - {{ $settings['site_name'] }}">
+    <meta property="og:title" content="{{ $genre->name }} - {{ $settings['site_name'] }}">
     <meta property="og:description" content="{{ $genre->description ?? $settings['description'] }}">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ sourceSetting($settings['logo']) }}">
@@ -31,7 +31,7 @@
             [
                 '@type' => 'ListItem',
                 'position' => 2,
-                'name' => $$genre->name,
+                'name' => $genre->name,
                 'item' => url()->current()
             ]
         ]
@@ -42,7 +42,7 @@
 
 @section('main')
     <div id="container">
-        <h2 id="page-title" class="breadcrumb">{{ $$genre->name }}</h2>
+        <h2 id="page-title" class="breadcrumb">{{ $genre->name }}</h2>
         @foreach ($movies as $movie)
             <div id="video-{{ $movie->id }}" class="video-item">
                 <a title="{{ $movie->title }}" href="{{ route('movie.watch', $movie->slug) }}">
