@@ -31,7 +31,7 @@
         <h2 id="page-title" class="breadcrumb" style="text-transform: none;">{{ $movie->title }}</h2>
 
         <div id="video" data-id="{{ $movie->id }}" data-sv="1">
-            <div class="mobile video-player" style="position: relative; padding-top: 56.25%;">
+            <div class="mobile video-player" style="position: relative;">
                 @php
                     $m3u8Source = $movie->sources->where('active', 1)->where('type', 'm3u8')->first();
                     $embedSource = $movie->sources->where('active', 1)->where('type', 'embed')->first();
