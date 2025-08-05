@@ -8,10 +8,10 @@
 
     @yield('head')
 
-    <link rel="stylesheet" href="{{ url('assets/css/mobile-default.css') }}" type="text/css">
-    <script type="text/javascript" src="{{ url('assets/js/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('assets/js/mobile-default.js') }}"></script>
-    <script type="text/javascript" src="{{ url('assets/js/jquery.lazyload.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url('assets/css/mobile-default.css') }}?v=1.0" type="text/css">
+    <script type="text/javascript" src="{{ url('assets/js/jquery.min.js') }}?v=1.0"></script>
+    <script type="text/javascript" src="{{ url('assets/js/mobile-default.js') }}?v=1.0"></script>
+    <script type="text/javascript" src="{{ url('assets/js/jquery.lazyload.min.js') }}?v=1.0"></script>
     <script>
         $(function() {
             $("img.lazyload").lazyload();
@@ -25,20 +25,20 @@
     </style>
 
      @if ($isDesktop)
-        <link type="text/css" href="{{ url('assets/css/desktop-default.css') }}" rel="stylesheet">
+        <link type="text/css" href="{{ url('assets/css/desktop-default.css') }}?v=1.0" rel="stylesheet">
     @else
-        <link type="text/css" href="{{ url('assets/css/mobile-default.css') }}" rel="stylesheet">
+        <link type="text/css" href="{{ url('assets/css/mobile-default.css') }}?v=1.0" rel="stylesheet">
     @endif
 
-    <script type="text/javascript" src="{{ url('assets/js/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('assets/js/jquery.min.js') }}?v=1.0"></script>
 
     @if ($isDesktop)
-        <script type="text/javascript" src="{{ url('assets/js/desktop-default.js') }}"></script>
+        <script type="text/javascript" src="{{ url('assets/js/desktop-default.js') }}?v=1.0"></script>
     @else
-        <script type="text/javascript" src="{{ url('assets/js/mobile-default.js') }}"></script>
+        <script type="text/javascript" src="{{ url('assets/js/mobile-default.js') }}?v=1.0"></script>
     @endif
 
-    <script type="text/javascript" src="{{ url('assets/js/jquery.lazyload.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('assets/js/jquery.lazyload.min.js') }}?v=1.0"></script>
     <script>
         $(function() {
             $("img.lazyload").lazyload();
@@ -57,9 +57,9 @@
     {!! $settings['google_analytics'] ?? null !!}
 
     @if ($isDesktop)
-        <link href="{{ url('assets/adv/desktop-adx.css') }}" rel="stylesheet" type="text/css">
+        <link href="{{ url('assets/adv/desktop-adx.css') }}?v=1.0" rel="stylesheet" type="text/css">
     @else
-        <link href="{{ url('assets/adv/mobile-adx.css') }}" rel="stylesheet" type="text/css">
+        <link href="{{ url('assets/adv/mobile-adx.css') }}?v=1.0" rel="stylesheet" type="text/css">
     @endif
 
     @if (isset($headerScript))
@@ -335,16 +335,16 @@
 </body>
 
 {{-- adx js --}}
-<script type="text/javascript" src="{{ url('assets/adv/vl-header-adx.js?v=' . time()) }}"></script>
+<script type="text/javascript" src="{{ url('assets/adv/vl-header-adx.js?v=' . time()) }}?v=1.0"></script>
 
 @if ($isDesktop)
-    <script type="text/javascript" src="{{ url('assets/adv/vl-desktop-adx.js?v=' . time()) }}"></script>
+    <script type="text/javascript" src="{{ url('assets/adv/vl-desktop-adx.js?v=' . time()) }}?v=1.0"></script>
 @else
-    <script type="text/javascript" src="{{ url('assets/adv/vl-mobile-adx.js?v=' . time()) }}"></script>
+    <script type="text/javascript" src="{{ url('assets/adv/vl-mobile-adx.js?v=' . time()) }}?v=1.0"></script>
 @endif
 
 @if (Route::currentRouteName() == 'web.movie.view')
-    <script type="text/javascript" src="{{ url('assets/adv/vl-underplayer-adx.js?v=' . time()) }}"></script>
+    <script type="text/javascript" src="{{ url('assets/adv/vl-underplayer-adx.js?v=' . time()) }}?v=1.0"></script>
 @endif
 
 {{-- push js --}}
