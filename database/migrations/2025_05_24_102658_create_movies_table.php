@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('movies', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('code')->nullable();
-            $table->string('title')->nullable();
-            $table->string('title_en')->nullable();
+            $table->text('title')->nullable();
+            $table->text('title_en')->nullable();
             $table->string('slug')->nullable();
             $table->text('description')->nullable();
 
@@ -42,8 +42,8 @@ return new class extends Migration
             $table->boolean('is_hot')->default(0);
             $table->boolean('hidden')->default(0);
 
-            $table->string('type')->default('single');
-            $table->string('status')->default('ongoing');
+            $table->string('type')->default('censored');
+            $table->string('status')->default('active');
 
             $table->boolean('chieurap')->default(false);
 

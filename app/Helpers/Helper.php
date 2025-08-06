@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
@@ -117,7 +118,7 @@ if (!function_exists('downloadImage')) {
             $savePath = "{$storageFolder}/{$filename}";
 
             imagepalettetotruecolor($image);
-            imagewebp($image, $savePath, 80);
+            imagewebp($image, $savePath, 100);
 
             imagedestroy($image);
             @unlink($tmpPath);
@@ -277,3 +278,80 @@ if (!function_exists('call_gemini_api')) {
         return $text; // Nếu API lỗi, trả về text gốc
     }
 }
+
+if (!function_exists('rewriteMovie')) {
+    /**
+     * Dịch tiêu đề & mô tả phim sang tiếng Việt, giữ mã và rút gọn tiêu đề.
+     */
+    function rewriteMovie(string $rawTitle, string $description): ?array
+    {
+        // Lấy mã phim từ tiêu đề (thường nằm đầu)
+        preg_match('/^([A-Z0-9\-]+)/', $rawTitle, $matches);
+        $code = $matches[1] ?? null;
+
+        if (!$code) return null;
+
+        // Prompt mới theo yêu cầu
+        $prompt = <<<EOT
+You are a Vietnamese adult movie editor.
+
+## Task:
+1. Extract the movie code from the beginning of the title: "{$code}".
+2. Translate the title to Vietnamese, keeping the movie code at the beginning.
+3. Make the title shorter, clearer, and more erotic if possible — but still reflect the original meaning.
+4. Then translate the description to Vietnamese (if it exists).
+
+## Input:
+Original Title: {$rawTitle}
+Original Description: {$description}
+
+## Output format:
+Title: [Translated and shortened Vietnamese title, starting with code]
+Description: [Translated Vietnamese description]
+
+Begin:
+EOT;
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'X-goog-api-key' => "AIzaSyBDc4uN2r0Diav3_GHgn2ZKPETyL67Q5Xo", // hoặc thay bằng key trực tiếp nếu muốn
+        ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
+                ]
+            ]
+        ]);
+
+        usleep(500000); // 0.5s delay
+
+        if (!$response->successful()) {
+            Log::error('Gemini API Error', [
+                'status' => $response->status(),
+                'message' => data_get($response->json(), 'error.message')
+            ]);
+            return null;
+        }
+
+        $output = data_get($response->json(), 'candidates.0.content.parts.0.text');
+        if (!$output) return null;
+
+        $result = [
+            'title' => null,
+            'description' => null,
+        ];
+
+        if (preg_match('/Title:\s*(.+)/i', $output, $matches)) {
+            $result['title'] = trim($matches[1]);
+        }
+
+        if (preg_match('/Description:\s*(.+)/is', $output, $matches)) {
+            $result['description'] = trim($matches[1]);
+        }
+
+        return $result;
+    }
+}
+
