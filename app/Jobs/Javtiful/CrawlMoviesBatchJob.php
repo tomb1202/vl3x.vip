@@ -101,7 +101,7 @@ class CrawlMoviesBatchJob implements ShouldQueue
                             $movie->save();
 
                             // Dispatch crawl chi tiết
-                            // CrawlMovieDetailJob::dispatch($movie, $slugRaw);
+                            CrawlMovieDetailJob::dispatch($movie, $slugRaw);
                         });
                     } catch (\Throwable $e) {
                         Log::error('Lỗi xử lý item phim', ['message' => $e->getMessage()]);
