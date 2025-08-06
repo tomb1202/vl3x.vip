@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Javtiful;
 
-use App\Jobs\CrawlMovieDetailJob;
 use App\Models\Movie;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +43,7 @@ class CrawlMoviesBatchJob implements ShouldQueue
         $client = new Client($httpClient);
 
         for ($page = $this->startPage; $page >= $this->endPage; $page--) {
-            $link = "https://javtiful.com/videos/{$page}";
+            $link = "https://javtiful.com/videos/?page={$page}";
 
             try {
                 $crawler = $client->request('GET', $link);
@@ -77,6 +76,7 @@ class CrawlMoviesBatchJob implements ShouldQueue
                                 ['slug' => $slug],
                                 [
                                     'title' => $title,
+                                    'url' => $href,
                                     'title_en' => $title,
                                     'poster_path' => $imgSrc,
                                     'thumb_path' => $imgSrc,

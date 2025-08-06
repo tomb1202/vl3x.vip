@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('movies', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('code')->nullable();
+            $table->string('url')->nullable();
             $table->text('title')->nullable();
             $table->text('title_en')->nullable();
             $table->string('slug')->nullable();

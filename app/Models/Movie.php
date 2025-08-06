@@ -11,6 +11,7 @@ class Movie extends Model
 
     protected $fillable = [
         'code',
+        'url',
         'title',
         'title_en',
         'slug',
@@ -46,6 +47,11 @@ class Movie extends Model
     public function genres()
     {
         return $this->belongsToMany(Genre::class, 'movie_genres');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Genre::class, 'movie_tags');
     }
 
     public function countries()

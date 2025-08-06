@@ -4,17 +4,15 @@ namespace App\Jobs\Javtiful;
 
 use App\Models\Movie;
 use App\Models\MovieSource;
-use App\Models\Genre;
-use App\Models\Country;
-use App\Models\Actor;
-use App\Models\Director;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpClient\HttpClient;
+use Goutte\Client;
+use Illuminate\Support\Str;
 
 class CrawlMovieDetailJob implements ShouldQueue
 {
@@ -34,130 +32,140 @@ class CrawlMovieDetailJob implements ShouldQueue
         $movie = $this->movie;
         if (!$movie) return;
 
-        // Gọi API lấy chi tiết
-        $res = Http::withOptions(['verify' => false])->get("https://nguon.vsphim.com/api/phim/{$this->slug}");
-        if (!$res->successful()) return;
+        $httpClient = HttpClient::create([
+            'verify_peer' => false,
+            'verify_host' => false,
+            'timeout' => 20,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language' => 'en-US,en;q=0.9',
+                'Referer' => 'https://javtiful.com/',
+            ],
+        ]);
 
-        $data = $res->json('movie');
-        if (!$data) return;
+        $client = new Client($httpClient);
+
+        $crawler = $client->request('GET', $movie->url);
+
 
         // Cập nhật thông tin movie
         if (!$movie->code) {
             $movie->code = generateRandomCode();
         }
 
-        $movie->description = $data['content'] ?? null;
-        $movie->duration = $data['time'] ?? null;
-        $movie->trailer = $data['trailer_url'] ?? null;
-        $movie->quality = $data['quality'] ?? null;
-        $movie->language = $data['lang'] ?? null;
-        $movie->total_episode = is_numeric($data['episode_total']) ? (int) $data['episode_total'] : null;
-        $movie->view = $data['view'] ?? 0;
-        $movie->imdb = is_numeric($data['tmdb']['vote_average'] ?? null) ? (float) $data['tmdb']['vote_average'] : null;
-        $movie->status = $data['status'] ?? 'ongoing';
-        $movie->type = $data['type'] ?? 'single';
-        $movie->chieurap = $data['chieurap'] ?? 0;
-        $movie->created_at_api = isset($data['created']['time']) ? date('Y-m-d H:i:s', strtotime($data['created']['time'])) : null;
-        $movie->updated_at_api = isset($data['modified']['time']) ? date('Y-m-d H:i:s', strtotime($data['modified']['time'])) : null;
-        $movie->is_crawl = true;
-        $movie->hidden = 1;
-        $movie->save();
+        $crawler->filter('#video-section')->each(function ($node) use ($movie) {
+            try {
+                $movie->quality = 'FHD';
+                $movie->view = rand(1300, 50000);
+                $movie->status = 'active';
+                $movie->is_crawl = true;
+                $movie->hidden = 1;
+                $movie->save();
+
+                /** ====== GENRES ====== */
+                $genreIds = [];
+                $node->filter('.video-details__label:contains("Category")')->each(function ($catNode) use (&$genreIds) {
+                    $catNode->nextAll()->filter('a')->each(function ($a) use (&$genreIds) {
+                        $name = trim($a->text());
+                        $slug = makeSlug($name);
+
+                        $genre = \App\Models\Genre::firstOrCreate(
+                            ['slug' => $slug],
+                            ['name' => $name, 'hidden' => 1]
+                        );
+
+                        $genreIds[] = $genre->id;
+                    });
+                });
+
+
+                $movie->genres()->sync($genreIds);
+
+                /** ====== TAGS ====== */
+                $tagIds = [];
+
+                $node->filter('.video-details__item')->each(function ($item) use (&$tagIds) {
+                    $label = trim($item->filter('.video-details__label')->text());
+
+                    if (Str::lower($label) === 'tags') {
+                        $item->filter('.video-details__item_links a')->each(function ($a) use (&$tagIds) {
+                            $name = trim($a->text());
+                            $slug = makeSlug($name);
+
+                            if (!$slug) return;
+
+                            try {
+                                $tag = \App\Models\Tag::firstOrCreate(
+                                    ['slug' => $slug],
+                                    ['name' => $name, 'hidden' => 1]
+                                );
+                            } catch (\Throwable $e) {
+                                // Nếu bị lỗi duplicate thì lấy lại
+                                $tag = \App\Models\Tag::where('slug', $slug)->first();
+                            }
+
+                            if ($tag) {
+                                $tagIds[] = $tag->id;
+                            }
+                        });
+                    }
+                });
+
+                $movie->tags()->sync($tagIds);
+
+
+                /** =======================
+                 *   Lưu Diễn Viên (Actors)
+                 *  ======================= */
+                $actorIds = [];
+                $node->filter('.video-details__label:contains("Actress")')->each(function ($label) use (&$actorIds) {
+                    $label->nextAll()->filter('a')->each(function ($a) use (&$actorIds) {
+                        $name = trim($a->filter('span')->text());
+                        $slug = makeSlug($name);
+                        $avatar = $a->filter('img')->attr('src') ?? null;
+
+                        $actor = \App\Models\Actor::firstOrCreate(
+                            ['slug' => $slug],
+                            ['name' => $name, 'avatar' => $avatar]
+                        );
+
+                        $actorIds[] = $actor->id;
+                    });
+                });
+                $movie->actors()->sync($actorIds);
+            } catch (\Throwable $e) {
+                Log::error('Lỗi xử lý detail phim', ['message' => $e->getMessage()]);
+            }
+        });
 
         /** =======================
-         *   Lưu Genres (Thể loại)
+         *   Lưu nguồn video (Embed)
          *  ======================= */
-        $genreIds = [];
-        foreach ($data['category'] ?? [] as $genre) {
-            $g = Genre::firstOrCreate(
-                ['slug' => $genre['slug']],
-                ['name' => $genre['name'], 'hidden' => 1]
-            );
-            $genreIds[] = $g->id;
-        }
-        $movie->genres()->sync($genreIds);
+        $embedLink = null;
 
-        /** =======================
-         *   Lưu Countries (Quốc gia)
-         *  ======================= */
-        $countryIds = [];
-        foreach ($data['country'] ?? [] as $country) {
-            $c = Country::firstOrCreate(
-                ['slug' => $country['slug']],
-                ['name' => $country['name']]
-            );
-            $countryIds[] = $c->id;
-        }
-        $movie->countries()->sync($countryIds);
+        $crawler->filter('button.share-btn')->each(function ($button) use (&$embedLink) {
+            $embedLink = $button->attr('data-embed-url');
+        });
 
-        /** =======================
-         *   Lưu Actors (Diễn viên)
-         *  ======================= */
-        $actorIds = [];
-        foreach ($data['actor'] ?? [] as $actorName) {
-            $slug = makeSlug($actorName);
-            $a = Actor::firstOrCreate(['slug' => $slug], ['name' => $actorName]);
-            $actorIds[] = $a->id;
-        }
-        $movie->actors()->sync($actorIds);
-
-        /** =======================
-         *   Lưu Directors (Đạo diễn)
-         *  ======================= */
-        $directorIds = [];
-        foreach ($data['director'] ?? [] as $directorName) {
-            $slug = makeSlug($directorName);
-            $d = Director::firstOrCreate(['slug' => $slug], ['name' => $directorName]);
-            $directorIds[] = $d->id;
-        }
-        $movie->directors()->sync($directorIds);
-
-        /** =======================
-         *   Lưu Sources (Nguồn video)
-         *  ======================= */
-        $episodes = $res->json('episodes') ?? [];
-
-        // Nếu không có server => Xoá phim và các liên kết
-        if (empty($episodes)) {
-            $this->deleteMovieWithRelations($movie, "Không có server.");
-            return;
-        }
-
-        // Xoá source cũ trước khi lưu mới
+        // Xoá source cũ trước khi lưu
         MovieSource::where('movie_id', $movie->id)->delete();
 
-        foreach ($episodes as $server) {
-            foreach ($server['server_data'] ?? [] as $ep) {
-                // Lưu m3u8
-                if (!empty($ep['link_m3u8'])) {
-                    MovieSource::create([
-                        'movie_id' => $movie->id,
-                        'type' => 'm3u8',
-                        'video' => $ep['link_m3u8'],
-                        'label' => $server['server_name'] ?? null,
-                        'active' => true,
-                        'sort' => 0,
-                    ]);
-                }
-
-                // Lưu embed
-                if (!empty($ep['link_embed'])) {
-                    MovieSource::create([
-                        'movie_id' => $movie->id,
-                        'type' => 'embed',
-                        'video' => $ep['link_embed'],
-                        'label' => $server['server_name'] ?? null,
-                        'active' => true,
-                        'sort' => 0,
-                    ]);
-                }
-            }
-        }
-
-        // Nếu sau khi lưu vẫn không có nguồn video => Xoá phim và liên kết
-        if ($movie->sources()->count() === 0) {
+        // Nếu không tìm được link → xoá luôn phim và quan hệ
+        if (!$embedLink) {
             $this->deleteMovieWithRelations($movie, "Không có nguồn video.");
             return;
         }
+
+        // Lưu embed
+        MovieSource::create([
+            'movie_id' => $movie->id,
+            'type' => 'embed',
+            'video' => $embedLink,
+            'label' => 'embed',
+            'active' => true,
+            'sort' => 0,
+        ]);
     }
 
     /**
@@ -171,6 +179,7 @@ class CrawlMovieDetailJob implements ShouldQueue
         $movie->genres()->detach();
         $movie->countries()->detach();
         $movie->actors()->detach();
+        $movie->tags()->detach();
         $movie->directors()->detach();
 
         // Xoá sources
