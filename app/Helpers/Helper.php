@@ -325,7 +325,7 @@ EOT;
             ]
         ]);
 
-        usleep(500000); // 0.5s delay
+        usleep(1000000); // 0.5s delay
 
         if (!$response->successful()) {
             Log::error('Gemini API Error', [
